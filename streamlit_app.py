@@ -165,6 +165,19 @@ def main():
     with st.sidebar:
         st.header("Configuration")
         
+        st.subheader("API Keys")
+        groq_api_key = st.text_input(
+            "Groq API Key", 
+            type="password",
+            help="Enter your Groq API key"
+        )
+        
+        tavily_api_key = st.text_input(
+            "Tavily API Key", 
+            type="password",
+            help="Enter your Tavily API key"
+        )
+        
         st.subheader("Model Settings")
         model_name = st.selectbox(
             "Model",
@@ -187,9 +200,13 @@ def main():
     config.max_analysts = 3
     config.max_interview_turns = 2
     
+    if groq_api_key:
+        config.set_groq_api_key(groq_api_key)
+    if tavily_api_key:
+        config.set_tavily_api_key(tavily_api_key)
+    
     if not config.validate_config():
-        st.error("Please set GROQ_API_KEY and TAVILY_API_KEY environment variables")
-        st.info("You can set them in your .env file or system environment")
+        st.error("Please provide both Groq API Key and Tavily API Key in the sidebar")
         return
     
     try:

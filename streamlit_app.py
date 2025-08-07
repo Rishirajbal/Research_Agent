@@ -179,10 +179,16 @@ def main():
         )
         
         st.subheader("Model Settings")
-        model_name = st.selectbox(
-            "Model",
+        analyst_model = st.selectbox(
+            "Analyst Model",
             ["meta-llama/llama-4-scout-17b-16e-instruct", "llama3-70b-8192", "mixtral-8x7b-32768"],
-            help="Select the Groq model to use"
+            help="Model for generating analysts"
+        )
+        
+        research_model = st.selectbox(
+            "Research Model",
+            ["moonshotai/kimi-k2-instruct", "meta-llama/llama-4-scout-17b-16e-instruct", "llama3-70b-8192", "mixtral-8x7b-32768"],
+            help="Model for conducting research"
         )
         
         temperature = st.slider(
@@ -193,9 +199,20 @@ def main():
             step=0.1,
             help="Control randomness in responses"
         )
+        
+        st.subheader("Generated Analysts")
+        if "analysts" in st.session_state:
+            for i, analyst in enumerate(st.session_state.analysts, 1):
+                with st.expander(f"Analyst {i}: {analyst.name}"):
+                    st.write(f"**Role:** {analyst.role}")
+                    st.write(f"**Affiliation:** {analyst.affiliation}")
+                    st.write(f"**Description:** {analyst.description}")
+        else:
+            st.info("No analysts generated yet. Start research to see analysts here.")
     
     config = RishiGPTConfig()
-    config.model_name = model_name
+    config.analyst_model_name = analyst_model
+    config.research_model_name = research_model
     config.temperature = temperature
     config.max_analysts = 3
     config.max_interview_turns = 2
@@ -242,6 +259,9 @@ def main():
                         
                         if result["status"] == "analysts_generated":
                             st.success("Analysts generated! Starting research...")
+                            
+                            # Store analysts in session state for sidebar display
+                            st.session_state.analysts = result["analysts"]
                             
                             # Continue research to completion
                             research_result = researcher.confirm_analysts(result["thread"])

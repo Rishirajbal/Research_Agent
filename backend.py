@@ -33,19 +33,6 @@ class RishiGPTConfig:
         self.temperature = 0.1
         self.max_analysts = 3
         self.max_interview_turns = 2
-        
-        # Try to load from environment variables as defaults
-        env_groq = os.getenv("GROQ_API_KEY")
-        env_tavily = os.getenv("TAVILY_API_KEY")
-        env_langsmith = os.getenv("LANGSMITH_API_KEY")
-        
-        # Set if environment variables exist
-        if env_groq:
-            self.set_groq_api_key(env_groq)
-        if env_tavily:
-            self.set_tavily_api_key(env_tavily)
-        if env_langsmith:
-            self.set_langsmith_api_key(env_langsmith)
 
     def set_groq_api_key(self, api_key: str):
         self.groq_api_key = api_key
@@ -58,8 +45,9 @@ class RishiGPTConfig:
     def set_langsmith_api_key(self, api_key: str):
         self.langsmith_api_key = api_key
         os.environ["LANGSMITH_API_KEY"] = api_key
-        os.environ["LANGSMITH_TRACING"] = "true"
-        os.environ["LANGSMITH_PROJECT"] = "rishigpt"
+        if api_key:
+            os.environ["LANGSMITH_TRACING"] = "true"
+            os.environ["LANGSMITH_PROJECT"] = "rishigpt"
 
     def validate_config(self) -> bool:
         return self.groq_api_key is not None and self.tavily_api_key is not None
@@ -608,8 +596,8 @@ class RishiGPTResearcher:
         self.memory = MemorySaver()
         self.graph = self._build_graph()
         self.graph_html = self._visualize_graph()
-        
-        def _build_graph(self):
+    
+    def _build_graph(self):
         analyst_builder = StateGraph(GenerateAnalystsState)
         analyst_builder.add_node("create_analysts", 
                                lambda state: create_analysts(state, self.config))

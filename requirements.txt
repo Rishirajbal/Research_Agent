@@ -1,0 +1,16 @@
+
+streamlit
+langgraph
+langchain-core
+langchain-community
+langchain-groq
+langchain-tavily
+pydantic
+typing-extensions
+python-dotenv
+ipython
+wikipedia
+markdown
+networkx
+pyvis
+reportlab

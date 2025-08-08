@@ -11,6 +11,4 @@ python-dotenv
 ipython
 wikipedia
 markdown
-networkx
-pyvis
 reportlab

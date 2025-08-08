@@ -17,8 +17,6 @@ from langgraph.graph import StateGraph, START, END, MessagesState
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.constants import Send
 from dotenv import load_dotenv
-import networkx as nx
-from pyvis.network import Network
 
 load_dotenv()
 
@@ -669,122 +667,11 @@ class RishiGPTResearcher:
     
     def _visualize_graph(self):
         try:
-            # Create a simplified representation of the graph for visualization
-            G = nx.DiGraph()
-            
-            # Main research flow
-            G.add_node("START", title="Start", color="#6FCF97")
-            G.add_node("create_analysts", title="Create Analysts", color="#56CCF2")
-            G.add_node("human_feedback", title="Human Feedback", color="#F2C94C")
-            G.add_node("conduct_interview", title="Conduct Interview", color="#BB6BD9")
-            G.add_node("write_report", title="Write Report", color="#F2994A")
-            G.add_node("write_introduction", title="Write Introduction", color="#F2994A")
-            G.add_node("write_conclusion", title="Write Conclusion", color="#F2994A")
-            G.add_node("finalize_report", title="Finalize Report", color="#EB5757")
-            G.add_node("END", title="End", color="#6FCF97")
-            
-            # Interview flow
-            G.add_node("ask_question", title="Ask Question", color="#BB6BD9")
-            G.add_node("search_web", title="Search Web", color="#56CCF2")
-            G.add_node("search_wikipedia", title="Search Wikipedia", color="#56CCF2")
-            G.add_node("answer_question", title="Answer Question", color="#BB6BD9")
-            G.add_node("save_interview", title="Save Interview", color="#F2C94C")
-            G.add_node("write_section", title="Write Section", color="#F2994A")
-            
-            # Main research edges
-            G.add_edge("START", "create_analysts")
-            G.add_edge("create_analysts", "human_feedback")
-            G.add_edge("human_feedback", "create_analysts", label="feedback")
-            G.add_edge("human_feedback", "conduct_interview", label="confirm")
-            G.add_edge("conduct_interview", "write_report")
-            G.add_edge("conduct_interview", "write_introduction")
-            G.add_edge("conduct_interview", "write_conclusion")
-            G.add_edge("write_report", "finalize_report")
-            G.add_edge("write_introduction", "finalize_report")
-            G.add_edge("write_conclusion", "finalize_report")
-            G.add_edge("finalize_report", "END")
-            
-            # Interview edges
-            G.add_edge("conduct_interview", "ask_question", style="dashed")
-            G.add_edge("ask_question", "search_web", style="dashed")
-            G.add_edge("ask_question", "search_wikipedia", style="dashed")
-            G.add_edge("search_web", "answer_question", style="dashed")
-            G.add_edge("search_wikipedia", "answer_question", style="dashed")
-            G.add_edge("answer_question", "ask_question", label="continue", style="dashed")
-            G.add_edge("answer_question", "save_interview", label="done", style="dashed")
-            G.add_edge("save_interview", "write_section", style="dashed")
-            
-            # Create a PyVis network
-            net = Network(height="600px", width="100%", directed=True, notebook=False)
-            
-            # Add nodes
-            for node in G.nodes():
-                net.add_node(node, 
-                            label=node, 
-                            title=G.nodes[node].get('title', node),
-                            color=G.nodes[node].get('color', '#97C2FC'))
-            
-            # Add edges
-            for edge in G.edges():
-                net.add_edge(edge[0], edge[1], 
-                            title=G.edges[edge].get('label', ''),
-                            label=G.edges[edge].get('label', ''),
-                            style=G.edges[edge].get('style', 'solid'))
-            
-            # Generate HTML
-            net.set_options("""
-            var options = {
-                "nodes": {
-                    "font": {
-                        "size": 14,
-                        "face": "Tahoma"
-                    },
-                    "shape": "box"
-                },
-                "edges": {
-                    "arrows": {
-                        "to": {
-                            "enabled": true
-                        }
-                    },
-                    "smooth": {
-                        "type": "curvedCW",
-                        "roundness": 0.2
-                    }
-                },
-                "physics": {
-                    "hierarchicalRepulsion": {
-                        "centralGravity": 0.5,
-                        "springLength": 150,
-                        "springConstant": 0.01,
-                        "nodeDistance": 120,
-                        "damping": 0.09
-                    },
-                    "solver": "hierarchicalRepulsion"
-                },
-                "layout": {
-                    "hierarchical": {
-                        "enabled": true,
-                        "direction": "LR",
-                        "sortMethod": "directed",
-                        "levelSeparation": 150
-                    }
-                }
-            }
-            """)
-            
-            # Save to a temporary file
-            graph_html = "graph.html"
-            net.save_graph(graph_html)
-            
-            # Read the HTML content
-            with open(graph_html, 'r') as f:
-                html_content = f.read()
-            
-            return html_content
+            from IPython.display import display
+            return self.graph
         except Exception as e:
             print(f"Error visualizing graph: {str(e)}")
-            return "<p>Graph visualization failed</p>"
+            return None
     
     def start_research(self, topic: str, max_analysts: int = 3, thread_id: str = "1") -> Dict[str, Any]:
         thread = {"configurable": {"thread_id": thread_id}}
@@ -855,5 +742,5 @@ class RishiGPTResearcher:
         except:
             return None
             
-    def get_graph_html(self) -> str:
-        return self.graph_html
+    def get_graph(self):
+        return self.graph

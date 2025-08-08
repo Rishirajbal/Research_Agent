@@ -29,7 +29,8 @@ class RishiGPTConfig:
         self.groq_api_key = None
         self.tavily_api_key = None
         self.langsmith_api_key = None
-        self.model_name = "meta-llama/llama-4-scout-17b-16e-instruct"
+        self.analyst_model_name = "meta-llama/llama-4-scout-17b-16e-instruct"
+        self.research_model_name = "moonshotai/kimi-k2-instruct"
         self.temperature = 0.1
         self.max_analysts = 3
         self.max_interview_turns = 2
@@ -107,9 +108,11 @@ class ResearchGraphState(TypedDict):
     final_report: str
 
 
-def create_llm(config: RishiGPTConfig) -> ChatGroq:
+def create_llm(config: RishiGPTConfig, model_name: str = None) -> ChatGroq:
+    if model_name is None:
+        model_name = config.research_model_name
     return ChatGroq(
-        model=config.model_name,
+        model=model_name,
         temperature=config.temperature
     )
 
@@ -309,7 +312,7 @@ def create_analysts(state: GenerateAnalystsState, config: RishiGPTConfig):
     max_analysts = state['max_analysts']
     human_analyst_feedback = state.get('human_analyst_feedback', '')
     
-    llm = create_llm(config)
+    llm = create_llm(config, config.analyst_model_name)
     
     system_message = ANALYST_INSTRUCTIONS.format(
         topic=topic,

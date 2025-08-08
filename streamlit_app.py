@@ -187,8 +187,8 @@ def main():
         
         research_model = st.selectbox(
             "Research Model",
-            ["moonshotai/kimi-k2-instruct", "meta-llama/llama-4-scout-17b-16e-instruct", "llama3-70b-8192", "mixtral-8x7b-32768"],
-            help="Model for conducting research"
+            ["moonshotai/kimi-k2-instruct"],
+            help="Model for conducting research (moonshotai/kimi-k2-instruct only)"
         )
         
         temperature = st.slider(
@@ -199,6 +199,8 @@ def main():
             step=0.1,
             help="Control randomness in responses"
         )
+        
+        st.info("⚠️ **Free Tier Rate Limit**: If using Groq's free tier, you can only make requests once every 3 minutes. Consider upgrading for faster research.")
         
         st.subheader("Generated Analysts")
         if "analysts" in st.session_state:
@@ -232,10 +234,12 @@ def main():
         st.error(f"Failed to initialize researcher: {str(e)}")
         return
     
-    tab1, tab2, tab3 = st.tabs(["Start Research", "Final Report", "Process Visualization"])
+    tab1, tab2 = st.tabs(["Start Research", "Final Report"])
     
     with tab1:
         st.header("Start New Research")
+        
+        st.info("🔬 **Research Model**: This application uses moonshotai/kimi-k2-instruct for all research tasks. The analyst generation uses the selected analyst model above.")
         
         topic = st.text_area(
             "Research Topic",
@@ -323,42 +327,17 @@ def main():
                 except Exception as e:
                     st.error(f"Error generating download: {str(e)}")
             
-            st.subheader("Research Process Visualization")
+            st.subheader("Research Process Graph")
             try:
-                graph_html = researcher.get_graph_html()
-                st.components.v1.html(graph_html, height=600)
+                graph = researcher.get_graph()
+                st.code(str(graph), language="python")
+                st.info("Use ipython.draw(graph) in a notebook to visualize the graph")
             except Exception as e:
                 st.error(f"Error displaying graph: {str(e)}")
         else:
             st.info("No final report available. Complete a research project to see the report here.")
     
-    with tab3:
-        st.header("Research Process Visualization")
-        st.write("This visualization shows the flow of the research process and how different components interact.")
-        
-        try:
-            graph_html = researcher.get_graph_html()
-            st.components.v1.html(graph_html, height=700)
-            
-            st.subheader("Process Explanation")
-            st.markdown("""
-            The research process follows these main steps:
-            
-            1. **Create Analysts**: The system generates AI analysts with different perspectives based on the research topic.
-            2. **Human Feedback**: You can provide feedback to refine the analysts or confirm them to proceed.
-            3. **Conduct Interviews**: Each analyst conducts an interview with an expert, searching for information online.
-            4. **Write Reports**: The system generates section reports, introduction, and conclusion based on the interviews.
-            5. **Finalize Report**: All components are combined into a final research report.
-            
-            The dashed lines represent the interview subprocess, which includes:
-            - Asking questions
-            - Searching for information (web and Wikipedia)
-            - Answering questions
-            - Saving the interview
-            - Writing a section based on the interview
-            """)
-        except Exception as e:
-            st.error(f"Error displaying graph: {str(e)}")
+
 
 
 if __name__ == "__main__":
